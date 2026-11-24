@@ -1,0 +1,63 @@
+﻿Você vai preparar este computador para eu editar vídeos curtos verticais (Reels, 1080x1920) com IA. Não sou da área técnica: fale comigo em português simples e com o mínimo de perguntas.
+
+ANTES DE TUDO
+- Este prompt é para a aba Code do app do Claude (ou o app Codex). Se você estiver no site, na aba de conversa (Chat) ou no Cowork, não instale nada, não crie arquivos e não faça perguntas: responda só "Este prompt só funciona na aba Code. Abra o app do Claude, clique em Code, escolha a pasta EditorVideo e cole o prompt de novo."
+- Confira se você consegue rodar comandos neste computador (PowerShell no Windows, Terminal no Mac). Se não conseguir, PARE e me diga só a mesma frase acima.
+- Nunca crie arquivos .cmd, .bat, .ps1, .sh ou atalhos para eu abrir. Eu não abro arquivos: você roda todos os comandos.
+- Use a pasta que está aberta agora (o nome sugerido é "EditorVideo"). Não me pergunte onde instalar. Coloque sempre os caminhos entre aspas nos comandos.
+
+REGRAS
+- Primeiro descubra o sistema e o que já está instalado, só lendo (sem criar arquivos). No Windows, não rode "python" sozinho para verificar (pode abrir a Microsoft Store e travar): use "py -0p" e "where.exe python". Coloque tempo limite nos comandos de verificação.
+- Mostre UMA tabela com o que falta: nome, para que serve, origem oficial e tamanho aproximado. Espere eu responder "pode instalar". Depois disso, faça tudo até o fim sem me perguntar de novo, a não ser que algo dê errado.
+- Use só fontes oficiais: winget (Windows) ou Homebrew (Mac), python.org, nodejs.org, PyPI, npm e huggingface.co (só para o modelo Systran/faster-whisper-small).
+- Nunca desligue o antivírus nem a verificação de certificados. Se o antivírus interferir, me explique e proponha uma saída segura.
+- Nunca peça a minha senha na conversa. Se o Windows mostrar a janela "Deseja permitir...", me avise que é só clicar em Sim.
+- Não desinstale nem altere programas que já existiam (por exemplo, outra versão do Python).
+- Depois de instalar, recarregue o PATH (a lista de lugares onde o computador procura programas) antes de testar. Se não der, me peça para fechar e abrir o app.
+- No Windows, use npm.cmd e npx.cmd (o Windows pode bloquear npm.ps1). Não mude a política de scripts.
+- Avisos (warnings) que não impedem o programa de funcionar não são erro: só me conte, em uma frase, o que significam. Se algo falhar de verdade, pare e me explique.
+
+O QUE INSTALAR
+1. Programas do sistema, num ÚNICO comando, para a janela de permissão aparecer o mínimo de vezes:
+   Windows: winget install -e --silent --accept-package-agreements --accept-source-agreements com Git.Git, Gyan.FFmpeg, Python.Python.3.12 e OpenJS.NodeJS.LTS (só os que faltam).
+   Mac: brew install git ffmpeg python@3.12 node. Se o Homebrew não existir, me dê UM comando para eu colar no app Terminal e espere eu dizer "pronto".
+   O Node precisa ser 22 ou mais novo (o HyperFrames exige).
+2. Nesta pasta, crie só:
+   - Entrada/     (onde eu copio os vídeos originais; só leia, nunca altere nada aqui)
+   - Estilos/     (vídeos meus já editados, para você copiar o estilo)
+   - Editados/    (só os vídeos prontos)
+   - ferramentas/ (tudo o que é técnico fica aqui dentro)
+3. Ambiente Python em ferramentas/.venv (com o Python 3.12), com faster-whisper e numpy.
+4. Modelo Whisper "small" (cerca de 480 MB) de huggingface.co/Systran/faster-whisper-small em ferramentas/whisper/small/.
+5. HyperFrames instalado com npm dentro de ferramentas/hyperframes/ (rode "npm init -y" e "npm install hyperframes" nessa pasta; não global). Se o npm avisar de scripts não executados (allow-scripts), confira se o HyperFrames abre; se abrir, está tudo bem.
+6. Script ferramentas/transcrever.py: recebe um vídeo, converte o áudio com o FFmpeg em array numpy (16 kHz, mono) e transcreve com ferramentas/whisper/small/, mostrando o início e o fim de cada palavra.
+
+TESTE FINAL (tudo na pasta temporária do sistema, nunca nesta pasta)
+- Gere um vídeo de 5 segundos em 1080x1920 com o FFmpeg.
+- Crie uma frase falada com a voz do computador (Windows: System.Speech; Mac: say) e transcreva com ferramentas/transcrever.py.
+- Rode "hyperframes --version"; crie um projeto vertical de teste (hyperframes init teste --example blank --resolution portrait --non-interactive --skip-skills) e rode "hyperframes lint". Não renderize: o primeiro render baixa um navegador interno (150 a 300 MB).
+- Apague tudo o que o teste criou.
+- Mostre uma tabela final com ✓ ou ✗ e a versão de cada ferramenta.
+
+LIMPEZA
+- No fim, esta pasta deve ter só: Entrada, Estilos, Editados, ferramentas, estilo.md, AGENTS.md e CLAUDE.md. Apague qualquer outro arquivo que você criou e me mostre a lista final da pasta.
+
+O MEU ESTILO (estilo.md)
+Crie nesta pasta um arquivo estilo.md, em português simples, com estas seções: Cortes e ritmo · Legendas · Palavras fortes · Cores e fontes · Títulos e cartões · O que eu NÃO gosto. Se já houver vídeos em Estilos/, preencha um primeiro rascunho a partir deles; se não houver, deixe as seções vazias.
+- Antes de cada edição, leia o estilo.md e siga o que está nele.
+- Depois de cada vídeo, quando eu disser o que gostei ou não gostei, atualize o estilo.md e me conte em uma frase o que mudou.
+- Se uma preferência nova contradizer outra, me pergunte qual vale antes de mudar.
+
+ANOTAÇÕES PARA AS PRÓXIMAS CONVERSAS
+Crie AGENTS.md e uma cópia chamada CLAUDE.md com:
+- onde ficou cada ferramenta e como chamar (caminhos completos);
+- o que é cada pasta (Entrada, Estilos, Editados, ferramentas);
+- antes de cada edição, assistir aos vídeos de Estilos/ (se houver) e copiar o estilo: cortes de silêncio, legendas, palavras fortes, fontes e cores;
+- pausas e hesitações ("éé", "ahn", "hum"): o Whisper costuma apagar essas palavras da transcrição; procure buracos entre o fim de uma palavra e o início da próxima e confirme com o volume do áudio (FFmpeg silencedetect), em vez de confiar só no texto;
+- regras: originais em Entrada/ nunca são alterados; cortes só em pausas, nunca no meio da frase; legenda de uma palavra por vez; tudo dentro da zona segura do Reels (topo 220 px, nada abaixo de y 1470, laterais 35 px); áudio final perto de -14 LUFS com pico abaixo de -1,5 dBFS;
+- ler o estilo.md antes de cada edição e atualizá-lo depois de cada pedido de ajuste;
+- nunca criar arquivos .cmd/.bat/.ps1 para eu abrir; rodar os comandos diretamente;
+- arquivos de trabalho de cada edição ficam em ferramentas/trabalho/ e são apagados quando o vídeo fica pronto; em Editados/ fica só o vídeo final;
+- antes de renderizar, me mostrar o plano da edição (cortes, textos, legendas) e esperar a minha aprovação, porque o render demora.
+
+No fim, me diga em 3 frases como pedir a minha primeira edição.
